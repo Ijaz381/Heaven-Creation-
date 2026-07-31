@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heaven Creation - Spin & Win</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background: #1e1e2f;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 230, 255, 0.3);
+    }
+    .wallet {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #00ffcc;
+    }
+    .wheel-box {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      margin: 20px auto;
+    }
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 5px solid #00e6ff;
+      transition: transform 4s cubic-bezier(0.15, 0.99, 0.15, 0.99);
+    }
+    .pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 15px solid transparent;
+      border-right: 15px solid transparent;
+      border-top: 25px solid #ff0055;
+      z-index: 10;
+    }
+    input {
+      width: 80%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: none;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    button {
+      background: #00e6ff;
+      color: #000;
+      border: none;
+      padding: 12px 25px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 85%;
+    }
+    button:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    #result {
+      margin-top: 15px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🎯 Spin & Win Game</h2>
+    <div class="wallet">بیلنس: Rs. <span id="balance">1000</span></div>
+
+    <div class="wheel-box">
+      <div class="pointer"></div>
+      <canvas id="wheel" width="250" height="250"></canvas>
+    </div>
+
+    <input type="number" id="betAmount" value="50" min="10" placeholder="شرط کی رقم لکھیں">
+    <br>
+    <button id="spinBtn" onclick="spinWheel()">چرخہ گھمائیں (Spin)</button>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    let balance = 1000;
+    const segments = [
+      { text: "0x", color: "#ff4d4d", mult: 0 },
+      { text: "1.5x", color: "#3399ff", mult: 1.5 },
+      { text: "2x", color: "#33cc33", mult: 2 },
+      { text: "0.5x", color: "#ffaa00", mult: 0.5 },
+      { text: "5x", color: "#9933ff", mult: 5 },
+      { text: "10x", color: "#ff0066", mult: 10 }
+    ];
+
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const numSegments = segments.length;
+    const anglePerSegment = (2 * Math.PI) / numSegments;
+    let currentAngle = 0;
+    let isSpinning = false;
+
+    // چرخہ بنانے کا عمل
+    function drawWheel() {
+      for (let i = 0; i < numSegments; i++) {
+        const angle = i * anglePerSegment;
+        ctx.beginPath();
+        ctx.fillStyle = segments[i].color;
+        ctx.moveTo(125, 125);
+        ctx.arc(125, 125, 125, angle, angle + anglePerSegment);
+        ctx.lineTo(125, 125);
+        ctx.fill();
+
+        // ٹیکسٹ لکھنا
+        ctx.save();
+        ctx.translate(125, 125);
+        ctx.rotate(angle + anglePerSegment / 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 16px Arial";
+        ctx.fillText(segments[i].text, 75, 5);
+        ctx.restore();
+      }
+    }
+    drawWheel();
+
+    function spinWheel() {
+      const betInput = document.getElementById("betAmount");
+      const bet = parseFloat(betInput.value);
+
+      if (isNaN(bet) || bet <= 0) {
+        alert("براہ کرم صحیح رقم درج کریں!");
+        return;
+      }
+      if (bet > balance) {
+        alert("آپ کے پاس اتنا بیلنس نہیں ہے!");
+        return;
+      }
+
+      if (isSpinning) return;
+      isSpinning = true;
+
+      // پیسے کٹنا
+      balance -= bet;
+      document.getElementById("balance").innerText = balance;
+      document.getElementById("result").innerText = "چرخہ گھوم رہا ہے...";
+      document.getElementById("spinBtn").disabled = true;
+
+      // رینڈم چکر (Random Rotations)
+      const randomSegmentIndex = Math.floor(Math.random() * numSegments);
+      const extraDegrees = (360 / numSegments) * (numSegments - randomSegmentIndex) - (360 / numSegments) / 2;
+      const totalDegrees = 360 * 5 + extraDegrees; // 5 فل چکر + سٹاپ پوزیشن
+
+      currentAngle += totalDegrees;
+      canvas.style.transform = `rotate(${currentAngle}deg)`;
+
+      setTimeout(() => {
+        isSpinning = false;
+        document.getElementById("spinBtn").disabled = false;
+
+        const wonSegment = segments[randomSegmentIndex];
+        const winAmount = Math.floor(bet * wonSegment.mult);
+
+        balance += winAmount;
+        document.getElementById("balance").innerText = balance;
+
+        if (winAmount > 0) {
+          document.getElementById("result").innerText = `🎉 مبارک ہو! آپ نے ${wonSegment.text} ملٹی پلائر کے ساتھ Rs. ${winAmount} جیت لیے!`;
+          document.getElementById("result").style.color = "#00ffcc";
+        } else {
+          document.getElementById("result").innerText = "❌ اوہو! آپ کی شرط ضائع ہو گئی۔ دوبارہ کوشش کریں!";
+          document.getElementById("result").style.color = "#ff4d4d";
+        }
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
