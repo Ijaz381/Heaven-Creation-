@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Heaven Creation - 11-in-1 Pro Game Zone</title>
+  <title>Heaven Creation - 11-in-1 Ultimate Game Zone</title>
   <style>
     body { background-color: #0b0e14; color: #ffffff; font-family: Arial, sans-serif; text-align: center; margin: 0; padding: 15px; }
     
@@ -20,13 +20,16 @@
     .wallet-card { background: #161b22; border: 2px solid #00e6ff; border-radius: 12px; padding: 15px; margin: 0 auto 20px; max-width: 400px; }
     .wallet-balance { font-size: 28px; color: #00ffcc; font-weight: bold; }
     
-    /* Games */
+    /* Games Layout */
     .game-card { background: #161b22; border: 1px solid #232d3f; border-radius: 15px; padding: 15px; margin: 0 auto 25px; max-width: 400px; }
     input { width: 80%; padding: 10px; margin: 8px 0; border-radius: 6px; border: 1px solid #333; text-align: center; background: #0d1117; color: #fff; font-size: 16px; }
     .btn-main { background: #00e6ff; color: #000; border: none; padding: 10px; font-weight: bold; border-radius: 6px; width: 85%; cursor: pointer; margin: 5px 0; font-size: 15px; }
     .btn-side { background: #21262d; color: #fff; border: 1px solid #444; padding: 8px; width: 30%; cursor: pointer; border-radius: 6px; font-weight: bold; }
     
-    /* Card Display for High-Low */
+    /* Mines & Slots */
+    .mines-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0; }
+    .mine-box { background: #0d1117; border: 1px solid #333; height: 50px; border-radius: 8px; font-size: 20px; line-height: 50px; cursor: pointer; }
+    .slot-display { font-size: 32px; letter-spacing: 5px; margin: 10px; background: #0d1117; padding: 10px; border-radius: 8px; }
     .hl-card-box { font-size: 48px; background: #0d1117; border: 2px solid #ff0055; border-radius: 10px; width: 90px; height: 110px; line-height: 110px; margin: 10px auto; }
   </style>
 </head>
@@ -57,7 +60,85 @@
     <button class="btn-side" style="width:40%; background:#0088cc;" onclick="withdraw()">- Withdraw</button>
   </div>
 
-  <!-- GAME 10: HIGHER OR LOWER (NEW) -->
+  <!-- GAME 1: COIN FLIP -->
+  <div class="game-card">
+    <h2 style="color: #00e6ff; margin-top:0;">🪙 Coin Flip</h2>
+    <input type="number" id="coinBet" value="50" placeholder="شرط کی رقم">
+    <div style="margin: 5px 0;">
+      <button class="btn-side" id="btnHeads" onclick="selectCoin('Heads')">Heads</button>
+      <button class="btn-side" id="btnTails" onclick="selectCoin('Tails')">Tails</button>
+    </div>
+    <button class="btn-main" onclick="playCoinFlip()">ٹاس کریں (Flip)</button>
+    <div id="coin-result" style="font-weight:bold; margin-top:10px;"></div>
+  </div>
+
+  <!-- GAME 2: MINESWEEPER -->
+  <div class="game-card">
+    <h2 style="color: #ff3366; margin-top:0;">💣 Mines Game</h2>
+    <input type="number" id="mineBet" value="50" placeholder="شرط کی رقم">
+    <button class="btn-main" onclick="startMines()">گیم شروع کریں</button>
+    <div class="mines-grid" id="minesGrid">
+      <div class="mine-box" onclick="clickMine(0)">❓</div>
+      <div class="mine-box" onclick="clickMine(1)">❓</div>
+      <div class="mine-box" onclick="clickMine(2)">❓</div>
+      <div class="mine-box" onclick="clickMine(3)">❓</div>
+      <div class="mine-box" onclick="clickMine(4)">❓</div>
+      <div class="mine-box" onclick="clickMine(5)">❓</div>
+    </div>
+    <div id="mine-result" style="font-weight:bold;"></div>
+  </div>
+
+  <!-- GAME 3: DICE ROLL -->
+  <div class="game-card">
+    <h2 style="color: #00ffcc; margin-top:0;">🎲 Dice Roll (Under/Over)</h2>
+    <input type="number" id="diceBet" value="50" placeholder="شرط کی رقم">
+    <div style="margin: 5px 0;">
+      <button class="btn-side" onclick="playDice('Under')">Under 4 (1,2,3)</button>
+      <button class="btn-side" onclick="playDice('Over')">Over 3 (4,5,6)</button>
+    </div>
+    <div id="dice-result" style="font-weight:bold; margin-top:10px;"></div>
+  </div>
+
+  <!-- GAME 4: SPIN WHEEL -->
+  <div class="game-card">
+    <h2 style="color: #ffaa00; margin-top:0;">🎡 Spin & Win</h2>
+    <input type="number" id="spinBet" value="50" placeholder="شرط کی رقم">
+    <button class="btn-main" onclick="playSpin()">Spin Wheel!</button>
+    <div id="spin-result" style="font-weight:bold; margin-top:10px;"></div>
+  </div>
+
+  <!-- GAME 5: LUCKY SLOTS -->
+  <div class="game-card">
+    <h2 style="color: #ffcc00; margin-top:0;">🎰 Lucky Slots (10x)</h2>
+    <div class="slot-display" id="slotDisplay">❓ | ❓ | ❓</div>
+    <input type="number" id="slotBet" value="50" placeholder="شرط کی رقم">
+    <button class="btn-main" onclick="playSlots()">Pull Lever!</button>
+    <div id="slot-result" style="font-weight:bold; margin-top:10px;"></div>
+  </div>
+
+  <!-- GAME 6: COLOR GUESSING -->
+  <div class="game-card">
+    <h2 style="color: #cc66ff; margin-top:0;">🎨 Color Predict (2x)</h2>
+    <input type="number" id="colorBet" value="50" placeholder="شرط کی رقم">
+    <div style="display:flex; justify-space:space-around; margin:10px 0;">
+      <button class="btn-side" style="background:#ff3366;" onclick="playColor('Red')">🔴 Red</button>
+      <button class="btn-side" style="background:#3388ff;" onclick="playColor('Blue')">🔵 Blue</button>
+      <button class="btn-side" style="background:#00cc66;" onclick="playColor('Green')">🟢 Green</button>
+    </div>
+    <div id="color-result" style="font-weight:bold; margin-top:10px;"></div>
+  </div>
+
+  <!-- GAME 7: CRASH MULTIPLIER -->
+  <div class="game-card">
+    <h2 style="color: #ff3333; margin-top:0;">🚀 Crash Game</h2>
+    <div id="crashMultiplier" style="font-size:36px; font-weight:bold; color:#ffaa00; margin:10px;">1.00x</div>
+    <input type="number" id="crashBet" value="50" placeholder="شرط کی رقم">
+    <button class="btn-main" id="btnCrashStart" onclick="startCrash()">شروع کریں</button>
+    <button class="btn-main" id="btnCrashOut" onclick="cashOutCrash()" style="display:none; background:#00ffcc;">Cash Out</button>
+    <div id="crash-result" style="font-weight:bold; margin-top:10px;"></div>
+  </div>
+
+  <!-- GAME 8: HIGHER OR LOWER -->
   <div class="game-card">
     <h2 style="color: #ff0055; margin-top:0;">🃏 Higher or Lower (2x)</h2>
     <div id="hlCard" class="hl-card-box">7</div>
@@ -69,7 +150,7 @@
     <div id="hl-result" style="font-weight:bold; margin-top:10px;">اندازہ لگائیں کہ اگلا نمبر بڑا ہوگا یا چھوٹا!</div>
   </div>
 
-  <!-- GAME 11: NUMBER GUESSING GAME (NEW) -->
+  <!-- GAME 9: NUMBER GUESSING -->
   <div class="game-card">
     <h2 style="color: #00ffcc; margin-top:0;">🎯 Number Guessing (5x)</h2>
     <p style="font-size: 13px; color: #8b949e; margin: 2px 0;">1 سے 10 کے درمیان ایک نمبر چنیں!</p>
@@ -79,7 +160,7 @@
     <div id="guess-result" style="font-weight:bold; margin-top:10px;"></div>
   </div>
 
-  <!-- GAME 8: BLACKJACK (21) -->
+  <!-- GAME 10: BLACKJACK (21) -->
   <div class="game-card">
     <h2 style="color: #00ffcc; margin-top:0;">🃏 Blackjack (21)</h2>
     <div id="bj-display" style="font-size:20px; margin:10px;">پلیئر: 0 | ڈیلر: 0</div>
@@ -92,7 +173,7 @@
     <div id="bj-result" style="font-weight:bold; margin-top:10px;"></div>
   </div>
 
-  <!-- GAME 9: ROCK PAPER SCISSORS -->
+  <!-- GAME 11: ROCK PAPER SCISSORS -->
   <div class="game-card">
     <h2 style="color: #ffaa00; margin-top:0;">✂️ Rock Paper Scissors</h2>
     <input type="number" id="rpsBet" value="50" placeholder="شرط کی رقم">
@@ -132,124 +213,236 @@
       if (amt && !isNaN(amt) && amt > 0 && amt <= balance) { balance -= parseFloat(amt); updateBalance(); }
     }
 
-    /* --- HIGHER OR LOWER LOGIC --- */
+    /* 1. COIN FLIP */
+    let selectedCoin = 'Heads';
+    function selectCoin(choice) {
+      selectedCoin = choice;
+      document.getElementById("btnHeads").style.background = choice === 'Heads' ? '#00e6ff' : '#21262d';
+      document.getElementById("btnTails").style.background = choice === 'Tails' ? '#00e6ff' : '#21262d';
+    }
+    function playCoinFlip() {
+      let bet = parseInt(document.getElementById("coinBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet;
+      let flip = Math.random() < 0.5 ? 'Heads' : 'Tails';
+      let res = document.getElementById("coin-result");
+      if(flip === selectedCoin) {
+        let win = bet * 2; balance += win;
+        res.innerText = `🎉 Result: ${flip}! آپ Rs. ${win} جیت گئے!`; res.style.color = "#00ffcc";
+      } else {
+        res.innerText = `❌ Result: ${flip}! آپ ہار گئے۔`; res.style.color = "#ff4d4d";
+      }
+      updateBalance();
+    }
+
+    /* 2. MINES */
+    let mineLocation = -1, isMineActive = false, currentMineBet = 0;
+    function startMines() {
+      let bet = parseInt(document.getElementById("mineBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet; currentMineBet = bet; isMineActive = true;
+      mineLocation = Math.floor(Math.random() * 6);
+      let boxes = document.querySelectorAll(".mine-box");
+      boxes.forEach(b => { b.innerText = "❓"; b.style.background = "#0d1117"; });
+      document.getElementById("mine-result").innerText = "کسی ایک باکس پر کلک کریں!";
+      updateBalance();
+    }
+    function clickMine(index) {
+      if(!isMineActive) return;
+      let boxes = document.querySelectorAll(".mine-box");
+      if(index === mineLocation) {
+        boxes[index].innerText = "💣"; boxes[index].style.background = "#ff3366";
+        document.getElementById("mine-result").innerText = "💥 بم پھٹ گیا! آپ ہار گئے۔";
+        document.getElementById("mine-result").style.color = "#ff4d4d";
+      } else {
+        boxes[index].innerText = "💎"; boxes[index].style.background = "#00cc66";
+        let win = currentMineBet * 2; balance += win;
+        document.getElementById("mine-result").innerText = `🎉 ہیرا مل گیا! آپ Rs. ${win} جیت گئے!`;
+        document.getElementById("mine-result").style.color = "#00ffcc";
+      }
+      isMineActive = false; updateBalance();
+    }
+
+    /* 3. DICE ROLL */
+    function playDice(choice) {
+      let bet = parseInt(document.getElementById("diceBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet;
+      let roll = Math.floor(Math.random() * 6) + 1;
+      let res = document.getElementById("dice-result");
+      let won = (choice === 'Under' && roll <= 3) || (choice === 'Over' && roll >= 4);
+      if(won) {
+        let win = bet * 2; balance += win;
+        res.innerText = `🎲 Dice: ${roll}! آپ Rs. ${win} جیت گئے!`; res.style.color = "#00ffcc";
+      } else {
+        res.innerText = `🎲 Dice: ${roll}! آپ ہار گئے۔`; res.style.color = "#ff4d4d";
+      }
+      updateBalance();
+    }
+
+    /* 4. SPIN & WIN */
+    function playSpin() {
+      let bet = parseInt(document.getElementById("spinBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet;
+      let mults = [0, 0.5, 1.5, 2, 3];
+      let resMult = mults[Math.floor(Math.random() * mults.length)];
+      let win = bet * resMult; balance += win;
+      let res = document.getElementById("spin-result");
+      res.innerText = `🎡 Multiplier: ${resMult}x - آپ نے Rs. ${win} پائے!`;
+      res.style.color = resMult > 1 ? "#00ffcc" : "#ff4d4d";
+      updateBalance();
+    }
+
+    /* 5. LUCKY SLOTS */
+    function playSlots() {
+      let bet = parseInt(document.getElementById("slotBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet;
+      const icons = ['🍒', '🍋', '🔔', '💎', '7️⃣'];
+      let s1 = icons[Math.floor(Math.random()*5)], s2 = icons[Math.floor(Math.random()*5)], s3 = icons[Math.floor(Math.random()*5)];
+      document.getElementById("slotDisplay").innerText = `${s1} | ${s2} | ${s3}`;
+      let res = document.getElementById("slot-result");
+      if(s1 === s2 && s2 === s3) {
+        let win = bet * 10; balance += win;
+        res.innerText = `🎉 JACKPOT! 10x (Rs. ${win}) جیت گئے!`; res.style.color = "#00ffcc";
+      } else {
+        res.innerText = "❌ دوبارہ کوشش کریں!"; res.style.color = "#ff4d4d";
+      }
+      updateBalance();
+    }
+
+    /* 6. COLOR PREDICT */
+    function playColor(chosenColor) {
+      let bet = parseInt(document.getElementById("colorBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet;
+      const colors = ['Red', 'Blue', 'Green'];
+      let actual = colors[Math.floor(Math.random()*3)];
+      let res = document.getElementById("color-result");
+      if(chosenColor === actual) {
+        let win = bet * 2; balance += win;
+        res.innerText = `🎉 رنگ ${actual} تھا! آپ Rs. ${win} جیت گئے!`; res.style.color = "#00ffcc";
+      } else {
+        res.innerText = `❌ رنگ ${actual} تھا۔ آپ ہار گئے۔`; res.style.color = "#ff4d4d";
+      }
+      updateBalance();
+    }
+
+    /* 7. CRASH GAME */
+    let crashTimer, currentMult = 1.0, crashPoint = 0, isCrashRunning = false, crashBetAmt = 0;
+    function startCrash() {
+      let bet = parseInt(document.getElementById("crashBet").value);
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      balance -= bet; crashBetAmt = bet; updateBalance();
+      isCrashRunning = true; currentMult = 1.00;
+      crashPoint = (Math.random() * 4 + 1.1).toFixed(2);
+      document.getElementById("btnCrashStart").style.display = "none";
+      document.getElementById("btnCrashOut").style.display = "inline-block";
+      document.getElementById("crash-result").innerText = "جہاز اڑ رہا ہے...";
+      crashTimer = setInterval(() => {
+        currentMult += 0.05;
+        document.getElementById("crashMultiplier").innerText = currentMult.toFixed(2) + "x";
+        if(currentMult >= crashPoint) {
+          clearInterval(crashTimer); isCrashRunning = false;
+          document.getElementById("crash-result").innerText = `💥 Crash ہو گیا ${currentMult.toFixed(2)}x پر!`;
+          document.getElementById("crash-result").style.color = "#ff4d4d";
+          document.getElementById("btnCrashStart").style.display = "inline-block";
+          document.getElementById("btnCrashOut").style.display = "none";
+        }
+      }, 100);
+    }
+    function cashOutCrash() {
+      if(!isCrashRunning) return;
+      clearInterval(crashTimer); isCrashRunning = false;
+      let win = Math.floor(crashBetAmt * currentMult); balance += win; updateBalance();
+      document.getElementById("crash-result").innerText = `🎉 Cash Out! آپ نے ${currentMult.toFixed(2)}x پر Rs. ${win} حاصل کیے!`;
+      document.getElementById("crash-result").style.color = "#00ffcc";
+      document.getElementById("btnCrashStart").style.display = "inline-block";
+      document.getElementById("btnCrashOut").style.display = "none";
+    }
+
+    /* 8. HIGHER OR LOWER */
     let currentHLNum = 7;
     function playHighLow(choice) {
       let bet = parseInt(document.getElementById("hlBet").value);
-      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("بیلنس ناکافی ہے!"); return; }
-
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
       balance -= bet;
-      let nextNum = Math.floor(Math.random() * 12) + 1; // 1 to 12
+      let nextNum = Math.floor(Math.random() * 12) + 1;
       let resDisplay = document.getElementById("hl-result");
-
       if (nextNum === currentHLNum) {
-        balance += bet; // Draw -> Refund
-        resDisplay.innerText = `🔄 ایک جیسا نمبر آیا (${nextNum})! رقم واپس۔`;
-        resDisplay.style.color = "#ffaa00";
+        balance += bet; resDisplay.innerText = `🔄 ایک جیسا نمبر (${nextNum})! رقم واپس۔`; resDisplay.style.color = "#ffaa00";
       } else if ((choice === 'Higher' && nextNum > currentHLNum) || (choice === 'Lower' && nextNum < currentHLNum)) {
-        let win = bet * 2;
-        balance += win;
-        resDisplay.innerText = `🎉 اگلا نمبر ${nextNum} تھا! آپ Rs. ${win} جیت گئے!`;
-        resDisplay.style.color = "#00ffcc";
+        let win = bet * 2; balance += win;
+        resDisplay.innerText = `🎉 اگلا نمبر ${nextNum} تھا! آپ Rs. ${win} جیت گئے!`; resDisplay.style.color = "#00ffcc";
       } else {
-        resDisplay.innerText = `❌ اگلا نمبر ${nextNum} تھا! آپ ہار گئے۔`;
-        resDisplay.style.color = "#ff4d4d";
+        resDisplay.innerText = `❌ اگلا نمبر ${nextNum} تھا! آپ ہار گئے۔`; resDisplay.style.color = "#ff4d4d";
       }
-
-      currentHLNum = nextNum;
-      document.getElementById("hlCard").innerText = currentHLNum;
-      updateBalance();
+      currentHLNum = nextNum; document.getElementById("hlCard").innerText = currentHLNum; updateBalance();
     }
 
-    /* --- NUMBER GUESSING LOGIC --- */
+    /* 9. NUMBER GUESSING */
     function playNumberGuess() {
       let bet = parseInt(document.getElementById("guessBet").value);
       let guess = parseInt(document.getElementById("userGuess").value);
-
-      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("بیلنس ناکافی ہے!"); return; }
-      if(isNaN(guess) || guess < 1 || guess > 10) { alert("براہ کرم 1 سے 10 کے درمیان نمبر منتخب کریں!"); return; }
-
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
+      if(isNaN(guess) || guess < 1 || guess > 10) { alert("1 سے 10 تک نمبر چنیں!"); return; }
       balance -= bet;
       let secretNum = Math.floor(Math.random() * 10) + 1;
       let resDisplay = document.getElementById("guess-result");
-
       if (guess === secretNum) {
-        let win = bet * 5;
-        balance += win;
-        resDisplay.innerText = `🎯 زبردست! صحیح نمبر ${secretNum} تھا! آپ 5x (Rs. ${win}) جیت گئے!`;
-        resDisplay.style.color = "#00ffcc";
+        let win = bet * 5; balance += win;
+        resDisplay.innerText = `🎯 صحیح نمبر ${secretNum} تھا! آپ 5x (Rs. ${win}) جیت گئے!`; resDisplay.style.color = "#00ffcc";
       } else {
-        resDisplay.innerText = `❌ لکی نمبر ${secretNum} تھا۔ آپ کا اندازہ غلط رہا!`;
-        resDisplay.style.color = "#ff4d4d";
+        resDisplay.innerText = `❌ لکی نمبر ${secretNum} تھا۔ آپ کا اندازہ غلط رہا!`; resDisplay.style.color = "#ff4d4d";
       }
       updateBalance();
     }
 
-    /* --- BLACKJACK LOGIC --- */
+    /* 10. BLACKJACK */
     let playerSum = 0, dealerSum = 0, currentBjBet = 0;
     function startBJ() {
       let bet = parseInt(document.getElementById("bjBet").value);
-      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("بیلنس کم ہے!"); return; }
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
       balance -= bet; currentBjBet = bet; updateBalance();
-      playerSum = Math.floor(Math.random()*10) + 11;
-      dealerSum = Math.floor(Math.random()*6) + 12;
+      playerSum = Math.floor(Math.random()*10) + 11; dealerSum = Math.floor(Math.random()*6) + 12;
       document.getElementById("bj-display").innerText = `پلیئر: ${playerSum} | ڈیلر: ?`;
-      document.getElementById("bj-controls").style.display = "block";
-      document.getElementById("bj-result").innerText = "";
+      document.getElementById("bj-controls").style.display = "block"; document.getElementById("bj-result").innerText = "";
     }
-
     function hit() {
       playerSum += Math.floor(Math.random()*10) + 1;
       document.getElementById("bj-display").innerText = `پلیئر: ${playerSum} | ڈیلر: ?`;
       if(playerSum > 21) { 
         document.getElementById("bj-result").innerText = "❌ Bust! (21 سے اوپر ہو گیا) آپ ہار گئے۔";
-        document.getElementById("bj-result").style.color = "#ff4d4d";
-        document.getElementById("bj-controls").style.display = "none";
+        document.getElementById("bj-result").style.color = "#ff4d4d"; document.getElementById("bj-controls").style.display = "none";
       }
     }
-
     function stand() {
       document.getElementById("bj-display").innerText = `پلیئر: ${playerSum} | ڈیلر: ${dealerSum}`;
       if(playerSum <= 21 && (playerSum > dealerSum || dealerSum > 21)) {
-        let win = currentBjBet * 2;
-        balance += win;
-        document.getElementById("bj-result").innerText = `🎉 آپ جیت گئے! Rs. ${win}`;
-        document.getElementById("bj-result").style.color = "#00ffcc";
+        let win = currentBjBet * 2; balance += win;
+        document.getElementById("bj-result").innerText = `🎉 آپ جیت گئے! Rs. ${win}`; document.getElementById("bj-result").style.color = "#00ffcc";
       } else {
-        document.getElementById("bj-result").innerText = "❌ ڈیلر جیت گیا، آپ ہار گئے۔";
-        document.getElementById("bj-result").style.color = "#ff4d4d";
+        document.getElementById("bj-result").innerText = "❌ ڈیلر جیت گیا، آپ ہار گئے۔"; document.getElementById("bj-result").style.color = "#ff4d4d";
       }
-      updateBalance();
-      document.getElementById("bj-controls").style.display = "none";
+      updateBalance(); document.getElementById("bj-controls").style.display = "none";
     }
 
-    /* --- RPS LOGIC --- */
+    /* 11. ROCK PAPER SCISSORS */
     function playRPS(user) {
       let bet = parseInt(document.getElementById("rpsBet").value);
-      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("بیلنس ناکافی ہے!"); return; }
-
+      if(isNaN(bet) || bet <= 0 || bet > balance) { alert("ناکافی بیلنس!"); return; }
       const choices = ['🪨 Rock', '📄 Paper', '✂️ Scissors'];
       const comp = choices[Math.floor(Math.random()*3)];
-      
       balance -= bet;
       let resDisplay = document.getElementById("rps-result");
-
       if(user === comp) {
-        balance += bet; // refund
-        resDisplay.innerText = `کمپیوٹر: ${comp} | برابر (Draw)! رقم واپس۔`;
-        resDisplay.style.color = "#ffaa00";
-      } else if(
-        (user.includes('Rock') && comp.includes('Scissors')) || 
-        (user.includes('Paper') && comp.includes('Rock')) || 
-        (user.includes('Scissors') && comp.includes('Paper'))
-      ) {
-        let win = bet * 2;
-        balance += win;
-        resDisplay.innerText = `🎉 کمپیوٹر: ${comp} | آپ جیت گئے! Rs. ${win}`;
-        resDisplay.style.color = "#00ffcc";
+        balance += bet; resDisplay.innerText = `کمپیوٹر: ${comp} | برابر (Draw)! رقم واپس۔`; resDisplay.style.color = "#ffaa00";
+      } else if((user.includes('Rock') && comp.includes('Scissors')) || (user.includes('Paper') && comp.includes('Rock')) || (user.includes('Scissors') && comp.includes('Paper'))) {
+        let win = bet * 2; balance += win;
+        resDisplay.innerText = `🎉 کمپیوٹر: ${comp} | آپ جیت گئے! Rs. ${win}`; resDisplay.style.color = "#00ffcc";
       } else {
-        resDisplay.innerText = `❌ کمپیوٹر: ${comp} | آپ ہار گئے۔`;
-        resDisplay.style.color = "#ff4d4d";
+        resDisplay.innerText = `❌ کمپیوٹر: ${comp} | آپ ہار گئے۔`; resDisplay.style.color = "#ff4d4d";
       }
       updateBalance();
     }
