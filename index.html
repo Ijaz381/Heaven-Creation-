@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Heaven Creation - Game Zone</title>
+  <title>Heaven Creation - 3-in-1 Game Zone</title>
   <style>
     body {
       background-color: #0b0e14;
@@ -14,15 +14,17 @@
       padding: 15px;
     }
     
+    /* Shared Wallet Style */
     .wallet-card {
       background: #161b22;
-      border: 2px solid #232d3f;
+      border: 2px solid #00e6ff;
       border-radius: 12px;
       padding: 15px;
       margin-bottom: 20px;
       max-width: 400px;
       margin-left: auto;
       margin-right: auto;
+      box-shadow: 0 0 15px rgba(0, 230, 255, 0.2);
     }
     .wallet-title { font-size: 16px; color: #8b949e; }
     .wallet-balance { font-size: 28px; color: #00ffcc; font-weight: bold; margin: 5px 0; }
@@ -51,62 +53,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     }
 
-    /* Aviator Style */
-    .game-screen {
-      position: relative;
-      height: 180px;
-      background: #000000;
-      border-radius: 10px;
-      border: 1px solid #00e6ff;
-      overflow: hidden;
-      margin-bottom: 15px;
-    }
-    .multiplier {
-      position: absolute;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 38px;
-      font-weight: bold;
-      color: #ff3366;
-      z-index: 5;
-    }
-    #rocket {
-      position: absolute;
-      font-size: 32px;
-      left: 10px;
-      bottom: 10px;
-      transition: all 0.1s linear;
-      z-index: 4;
-    }
-
-    /* Wheel Style */
-    .wheel-box {
-      position: relative;
-      width: 200px;
-      height: 200px;
-      margin: 15px auto;
-    }
-    #wheel {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      border: 4px solid #00e6ff;
-      transition: transform 4s cubic-bezier(0.15, 0.99, 0.15, 0.99);
-    }
-    .pointer {
-      position: absolute;
-      top: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 0;
-      height: 0;
-      border-left: 12px solid transparent;
-      border-right: 12px solid transparent;
-      border-top: 20px solid #ff0055;
-      z-index: 10;
-    }
-
+    /* Input & Button Styles */
     input {
       width: 80%;
       padding: 10px;
@@ -131,20 +78,87 @@
       cursor: pointer;
       margin: 4px 0;
     }
-    .btn-cashout {
-      background: #00cc66;
-      color: #fff;
+    .btn-cashout { background: #00cc66; color: #fff; }
+    button:disabled { background: #444 !important; color: #777 !important; cursor: not-allowed; }
+
+    /* Aviator Style */
+    .game-screen {
+      position: relative;
+      height: 160px;
+      background: #000000;
+      border-radius: 10px;
+      border: 1px solid #00e6ff;
+      overflow: hidden;
+      margin-bottom: 15px;
     }
-    button:disabled {
-      background: #444 !important;
-      color: #777 !important;
-      cursor: not-allowed;
+    .multiplier {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 35px;
+      font-weight: bold;
+      color: #ff3366;
+      z-index: 5;
     }
+    #rocket {
+      position: absolute;
+      font-size: 30px;
+      left: 10px;
+      bottom: 10px;
+      transition: all 0.1s linear;
+      z-index: 4;
+    }
+
+    /* Spin Wheel Style */
+    .wheel-box {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      margin: 15px auto;
+    }
+    #wheel {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 4px solid #00e6ff;
+      transition: transform 4s cubic-bezier(0.15, 0.99, 0.15, 0.99);
+    }
+    .pointer {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 18px solid #ff0055;
+      z-index: 10;
+    }
+
+    /* Mystery Box Game Style */
+    .boxes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+    .box-btn {
+      background: #21262d;
+      border: 2px solid #30363d;
+      border-radius: 10px;
+      font-size: 32px;
+      padding: 15px 0;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .box-btn:hover { border-color: #ffaa00; background: #2d333b; }
   </style>
 </head>
 <body>
 
-  <!-- Shared Wallet -->
+  <!-- SHARED WALLET -->
   <div class="wallet-card">
     <div class="wallet-title">💰 والٹ (Wallet Balance)</div>
     <div class="wallet-balance">Rs. <span id="balance">1000</span></div>
@@ -155,31 +169,45 @@
   <!-- GAME 1: AVIATOR -->
   <div class="game-card">
     <h2 style="color: #ff0055; margin-top:0;">🚀 Aviator Game</h2>
-    
     <div class="game-screen">
       <div id="multiplierDisplay" class="multiplier">1.00x</div>
       <div id="rocket">🚀</div>
     </div>
-
     <input type="number" id="aviatorBet" value="50" placeholder="شرط کی رقم">
     <br>
     <button id="betBtn" class="btn-main" onclick="placeAviatorBet()">شرط لگائیں (Bet)</button>
     <button id="cashoutBtn" class="btn-main btn-cashout" onclick="cashoutAviator()" disabled>پیسے نکالیں (Cashout)</button>
   </div>
 
-  <!-- GAME 2: SPIN WHEEL -->
+  <!-- GAME 2: MYSTERY BOX GAME -->
+  <div class="game-card">
+    <h2 style="color: #ffaa00; margin-top:0;">🎁 Mystery Box Game</h2>
+    <p style="font-size: 13px; color:#aaa; margin-bottom: 5px;">کوئی بھی ایک باکس چنیں اور انعام جیتیں!</p>
+    
+    <input type="number" id="boxBet" value="50" placeholder="شرط کی رقم">
+    
+    <div class="boxes-grid">
+      <button class="box-btn" onclick="openBox(0)">🎁</button>
+      <button class="box-btn" onclick="openBox(1)">🎁</button>
+      <button class="box-btn" onclick="openBox(2)">🎁</button>
+      <button class="box-btn" onclick="openBox(3)">🎁</button>
+      <button class="box-btn" onclick="openBox(4)">🎁</button>
+      <button class="box-btn" onclick="openBox(5)">🎁</button>
+    </div>
+    
+    <div id="boxResult" style="font-weight:bold; min-height: 20px;"></div>
+  </div>
+
+  <!-- GAME 3: SPIN WHEEL -->
   <div class="game-card">
     <h2 style="color: #00ffcc; margin-top:0;">🎯 Spin & Win Wheel</h2>
-
     <div class="wheel-box">
       <div class="pointer"></div>
-      <canvas id="wheel" width="200" height="200"></canvas>
+      <canvas id="wheel" width="180" height="180"></canvas>
     </div>
-
     <input type="number" id="spinBet" value="50" placeholder="شرط کی رقم">
     <br>
     <button id="spinBtn" class="btn-main" onclick="spinWheel()">چرخہ گھمائیں (Spin)</button>
-    
     <div id="spinResult" style="margin-top:10px; font-weight:bold;"></div>
   </div>
 
@@ -206,7 +234,7 @@
       }
     }
 
-    /* --- AVIATOR LOGIC --- */
+    /* --- GAME 1: AVIATOR LOGIC --- */
     let aviatorMultiplier = 1.00;
     let aviatorInterval;
     let isAviatorRunning = false;
@@ -220,18 +248,15 @@
     function placeAviatorBet() {
       let betVal = parseFloat(document.getElementById("aviatorBet").value);
       if (isNaN(betVal) || betVal <= 0 || betVal > balance) {
-        alert("صحیح بیلنس منتخب کریں!");
+        alert("بیلنس ناکافی ہے!");
         return;
       }
-
       currentAviatorBet = betVal;
       balance -= currentAviatorBet;
       updateBalance();
-
       hasAviatorBet = true;
       document.getElementById("betBtn").disabled = true;
       document.getElementById("cashoutBtn").disabled = false;
-
       if (!isAviatorRunning) startAviator();
     }
 
@@ -239,7 +264,6 @@
       isAviatorRunning = true;
       aviatorMultiplier = 1.00;
       aviatorCrashPoint = (Math.random() * 4 + 1.1).toFixed(2);
-      
       rocket.style.left = "10px";
       rocket.style.bottom = "10px";
       rocket.innerText = "🚀";
@@ -247,14 +271,10 @@
       aviatorInterval = setInterval(() => {
         aviatorMultiplier += 0.02;
         multDisplay.innerText = aviatorMultiplier.toFixed(2) + "x";
-
         let progress = (aviatorMultiplier - 1) / 4;
         rocket.style.left = Math.min(10 + progress * 180, 220) + "px";
-        rocket.style.bottom = Math.min(10 + progress * 100, 120) + "px";
-
-        if (aviatorMultiplier >= aviatorCrashPoint) {
-          endAviator(true);
-        }
+        rocket.style.bottom = Math.min(10 + progress * 100, 110) + "px";
+        if (aviatorMultiplier >= aviatorCrashPoint) endAviator(true);
       }, 100);
     }
 
@@ -280,7 +300,54 @@
       document.getElementById("cashoutBtn").disabled = true;
     }
 
-    /* --- SPIN WHEEL LOGIC --- */
+    /* --- GAME 2: MYSTERY BOX LOGIC --- */
+    const boxMultipliers = [0, 1.5, 2, 0.5, 3, 5, 0, 10];
+    let isBoxOpening = false;
+
+    function openBox(index) {
+      if (isBoxOpening) return;
+
+      const bet = parseFloat(document.getElementById("boxBet").value);
+      if (isNaN(bet) || bet <= 0 || bet > balance) {
+        alert("بیلنس ناکافی ہے یا رقم درست نہیں!");
+        return;
+      }
+
+      isBoxOpening = true;
+      balance -= bet;
+      updateBalance();
+
+      const boxButtons = document.querySelectorAll(".box-btn");
+      const resDisplay = document.getElementById("boxResult");
+      
+      resDisplay.innerText = "کھولا جا رہا ہے...";
+      resDisplay.style.color = "#aaa";
+
+      setTimeout(() => {
+        const randMult = boxMultipliers[Math.floor(Math.random() * boxMultipliers.length)];
+        const win = Math.floor(bet * randMult);
+        balance += win;
+        updateBalance();
+
+        if (randMult > 0) {
+          boxButtons[index].innerText = "💎";
+          resDisplay.innerText = `🎉 مبارک ہو! ${randMult}x کے ساتھ Rs. ${win} جیت لیے!`;
+          resDisplay.style.color = "#00ffcc";
+        } else {
+          boxButtons[index].innerText = "💣";
+          resDisplay.innerText = "❌ اوہو! بم نکل آیا - رقم ضائع ہو گئی۔";
+          resDisplay.style.color = "#ff4d4d";
+        }
+
+        setTimeout(() => {
+          boxButtons[index].innerText = "🎁";
+          isBoxOpening = false;
+        }, 2000);
+
+      }, 800);
+    }
+
+    /* --- GAME 3: SPIN WHEEL LOGIC --- */
     const segments = [
       { text: "0x", mult: 0, color: "#ff4d4d" },
       { text: "1.5x", mult: 1.5, color: "#3399ff" },
@@ -301,17 +368,17 @@
         const angle = i * anglePerSegment;
         ctx.beginPath();
         ctx.fillStyle = segments[i].color;
-        ctx.moveTo(100, 100);
-        ctx.arc(100, 100, 100, angle, angle + anglePerSegment);
-        ctx.lineTo(100, 100);
+        ctx.moveTo(90, 90);
+        ctx.arc(90, 90, 90, angle, angle + anglePerSegment);
+        ctx.lineTo(90, 90);
         ctx.fill();
 
         ctx.save();
-        ctx.translate(100, 100);
+        ctx.translate(90, 90);
         ctx.rotate(angle + anglePerSegment / 2);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 14px Arial";
-        ctx.fillText(segments[i].text, 55, 5);
+        ctx.font = "bold 13px Arial";
+        ctx.fillText(segments[i].text, 50, 4);
         ctx.restore();
       }
     }
@@ -320,10 +387,9 @@
     function spinWheel() {
       const bet = parseFloat(document.getElementById("spinBet").value);
       if (isNaN(bet) || bet <= 0 || bet > balance) {
-        alert("بیلنس ناکافی ہے یا رقم صحیح نہیں!");
+        alert("بیلنس ناکافی ہے!");
         return;
       }
-
       if (isSpinning) return;
       isSpinning = true;
 
@@ -341,7 +407,6 @@
       setTimeout(() => {
         isSpinning = false;
         document.getElementById("spinBtn").disabled = false;
-        
         const win = Math.floor(bet * segments[randIdx].mult);
         balance += win;
         updateBalance();
