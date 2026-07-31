@@ -3,57 +3,277 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Heaven Creation - Game Zone</title>
+  <title>Heaven Creation - Aviator Game</title>
   <style>
     body {
-      background-color: #0b0e14;
+      background-color: #12161c;
       color: #ffffff;
       font-family: Arial, sans-serif;
       text-align: center;
       margin: 0;
-      padding: 20px;
-    }
-    h1 {
-      color: #00e6ff;
-      margin-top: 20px;
-    }
-    p {
-      color: #aaaaaa;
-    }
-    .game-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      max-width: 350px;
-      margin: 30px auto;
+      padding: 15px;
     }
     .card {
-      background: #181f2a;
-      border: 2px solid #00e6ff;
+      background: #1e2430;
       border-radius: 12px;
-      padding: 20px;
-      text-decoration: none;
-      color: #fff;
-      font-size: 20px;
-      font-weight: bold;
-      box-shadow: 0 0 10px rgba(0, 230, 255, 0.2);
-      transition: 0.3s;
+      padding: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
     }
-    .card:hover {
-      background: #00e6ff;
+    .wallet-title { font-size: 18px; color: #aaa; }
+    .wallet-balance { font-size: 26px; color: #00ffcc; font-weight: bold; margin: 5px 0; }
+    
+    .btn-action {
+      background: #0088cc;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-weight: bold;
+      margin: 5px;
+      cursor: pointer;
+      width: 42%;
+    }
+    
+    /* Display Screen for Aviator */
+    .game-screen {
+      position: relative;
+      height: 200px;
+      background: #0b0e14;
+      border-radius: 10px;
+      border: 1px solid #2a3447;
+      overflow: hidden;
+    }
+    .multiplier {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 40px;
+      font-weight: bold;
+      color: #ff3366;
+      z-index: 5;
+    }
+    #rocket {
+      position: absolute;
+      font-size: 35px;
+      left: 10px;
+      bottom: 10px;
+      transition: all 0.1s linear;
+      z-index: 4;
+    }
+    
+    input {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #444;
+      text-align: center;
+      font-size: 16px;
+      background: #0b0e14;
+      color: #fff;
+    }
+    
+    .btn-bet {
+      background: #ffaa00;
       color: #000;
+      border: none;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 6px;
+      width: 90%;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+    .btn-cashout {
+      background: #00cc66;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 6px;
+      width: 90%;
+      cursor: pointer;
+    }
+    .btn-bet:disabled, .btn-cashout:disabled {
+      background: #444;
+      color: #888;
+      cursor: not-allowed;
+    }
+    .history {
+      text-align: left;
+      font-size: 14px;
+      max-height: 100px;
+      overflow-y: auto;
+      background: #0b0e14;
+      padding: 10px;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
 
-  <h1>Heaven Creation 🎮</h1>
-  <p>اپنی پسندیدہ گیم منتخب کریں:</p>
-
-  <div class="game-container">
-    <a href="game2.html" class="card">🚀 Aviator Game</a>
-    <a href="spin.html" class="card">🎯 Spin & Win Game</a>
+  <!-- Wallet Section -->
+  <div class="card">
+    <div class="wallet-title">💰 والٹ (Wallet)</div>
+    <div class="wallet-balance">Rs. <span id="balance">1000</span></div>
+    <button class="btn-action" onclick="deposit()">+ پیسے جمع کریں</button>
+    <button class="btn-action" onclick="withdraw()">- پیسے نکالیں</button>
   </div>
 
+  <!-- Game Section -->
+  <div class="card">
+    <h3>🚀 Aviator Crash Game</h3>
+    
+    <div class="game-screen">
+      <div id="multiplierDisplay" class="multiplier">1.00x</div>
+      <div id="rocket">🚀</div>
+    </div>
+
+    <div>
+      <input type="number" id="betInput" value="100" placeholder="شرط کی رقم (Rs.)">
+    </div>
+    
+    <button id="betBtn" class="btn-bet" onclick="placeBet()">شرط لگائیں (Bet)</button>
+    <button id="cashoutBtn" class="btn-cashout" onclick="cashout()" disabled>پیسے نکالیں (Cashout)</button>
+  </div>
+
+  <!-- History Section -->
+  <div class="card">
+    <h4>📜 گیم ہسٹری (History)</h4>
+    <div id="historyLog" class="history"></div>
+  </div>
+
+  <script>
+    let balance = 1000;
+    let currentMultiplier = 1.00;
+    let gameInterval;
+    let isGameRunning = false;
+    let hasBetted = false;
+    let currentBet = 0;
+    let crashPoint = 0;
+
+    const rocket = document.getElementById("rocket");
+    const multDisplay = document.getElementById("multiplierDisplay");
+
+    function deposit() {
+      let amt = prompt("رقم درج کریں (Deposit Amount):", "500");
+      if (amt && !isNaN(amt) && amt > 0) {
+        balance += parseFloat(amt);
+        updateBalance();
+      }
+    }
+
+    function withdraw() {
+      let amt = prompt("نکالنے کی رقم درج کریں (Withdraw Amount):", "200");
+      if (amt && !isNaN(amt) && amt > 0) {
+        if (amt <= balance) {
+          balance -= parseFloat(amt);
+          updateBalance();
+        } else {
+          alert("کم بیلنس!");
+        }
+      }
+    }
+
+    function updateBalance() {
+      document.getElementById("balance").innerText = balance.toFixed(0);
+    }
+
+    function placeBet() {
+      let betVal = parseFloat(document.getElementById("betInput").value);
+      if (isNaN(betVal) || betVal <= 0 || betVal > balance) {
+        alert("صحیح رقم منتخب کریں!");
+        return;
+      }
+
+      currentBet = betVal;
+      balance -= currentBet;
+      updateBalance();
+
+      hasBetted = true;
+      document.getElementById("betBtn").disabled = true;
+      document.getElementById("cashoutBtn").disabled = false;
+
+      if (!isGameRunning) {
+        startGame();
+      }
+    }
+
+    function startGame() {
+      isGameRunning = true;
+      currentMultiplier = 1.00;
+      
+      // Random crash point between 1.1x and 10.0x
+      crashPoint = (Math.random() * 5 + 1.1).toFixed(2);
+      
+      // Reset Rocket Position
+      rocket.style.left = "10px";
+      rocket.style.bottom = "10px";
+      rocket.innerText = "🚀";
+
+      gameInterval = setInterval(() => {
+        currentMultiplier += 0.02;
+        multDisplay.innerText = currentMultiplier.toFixed(2) + "x";
+
+        // Move Rocket Animation
+        let progress = (currentMultiplier - 1) / 5; // animation speed ratio
+        let newLeft = Math.min(10 + progress * 200, 260);
+        let newBottom = Math.min(10 + progress * 120, 140);
+        
+        rocket.style.left = newLeft + "px";
+        rocket.style.bottom = newBottom + "px";
+
+        // Check Crash
+        if (currentMultiplier >= crashPoint) {
+          endGame(true);
+        }
+      }, 100);
+    }
+
+    function cashout() {
+      if (!hasBetted || !isGameRunning) return;
+
+      let winAmount = Math.floor(currentBet * currentMultiplier);
+      balance += winAmount;
+      updateBalance();
+
+      addHistory(`🎉 جیت گئے: Rs. ${winAmount} (${currentMultiplier.toFixed(2)}x)`, "#00ffcc");
+      alert(`مبارک ہو! آپ نے Rs. ${winAmount} جیت لیے!`);
+
+      hasBetted = false;
+      document.getElementById("cashoutBtn").disabled = true;
+    }
+
+    function endGame(crashed) {
+      clearInterval(gameInterval);
+      isGameRunning = false;
+
+      if (crashed) {
+        rocket.innerText = "💥"; // Explosion emoji on crash
+        multDisplay.innerText = "CRASHED @ " + crashPoint + "x";
+        
+        if (hasBetted) {
+          addHistory(`❌ شرط ضائع ہوئی: Rs. ${currentBet} (${crashPoint}x)`, "#ff4d4d");
+          hasBetted = false;
+        }
+      }
+
+      document.getElementById("betBtn").disabled = false;
+      document.getElementById("cashoutBtn").disabled = true;
+    }
+
+    function addHistory(msg, color) {
+      const log = document.getElementById("historyLog");
+      const item = document.createElement("div");
+      item.style.color = color;
+      item.style.marginBottom = "5px";
+      item.innerText = msg;
+      log.prepend(item);
+    }
+  </script>
 </body>
 </html>
