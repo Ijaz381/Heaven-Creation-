@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Betting App</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #18191a; color: #fff; margin: 0; padding: 15px; text-align: center; }
+        .card { background: #242526; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .balance { font-size: 24px; color: #2ed573; font-weight: bold; }
+        .multiplier { font-size: 50px; font-weight: bold; color: #ff4757; margin: 20px 0; }
+        input, select { width: 80%; padding: 10px; margin: 5px 0; border-radius: 6px; border: none; font-size: 16px; text-align: center; }
+        button { background: #ff4757; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 85%; margin-top: 5px; }
+        button:disabled { background: #555; }
+        .green-btn { background: #2ed573; color: #000; }
+        .blue-btn { background: #1e90ff; }
+        .history { text-align: left; max-height: 100px; overflow-y: auto; font-size: 14px; background: #18191a; padding: 10px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <!-- Wallet Header -->
+    <div class="card">
+        <h3>💰 والٹ (Wallet)</h3>
+        <div class="balance">Rs. <span id="balance">1000</span></div>
+    </div>
+
+    <!-- Deposit & Withdraw Buttons -->
+    <div class="card">
+        <button class="blue-btn" onclick="toggleSection('depositBox')">➕ پیسے جمع کریں (Deposit)</button>
+        <div id="depositBox" style="display:none; margin-top: 10px;">
+            <select id="depMethod">
+                <option>EasyPaisa</option>
+                <option>JazzCash</option>
+                <option>USDT (Crypto)</option>
+            </select>
+            <input type="number" id="depAmount" placeholder="رقم لکھیں (مثلاً 500)">
+            <button class="green-btn" onclick="deposit()">جمع کی ریکویسٹ بھیجیں</button>
+        </div>
+
+        <button class="blue-btn" onclick="toggleSection('withdrawBox')" style="margin-top: 10px;">➖ پیسے نکالیں (Withdraw)</button>
+        <div id="withdrawBox" style="display:none; margin-top: 10px;">
+            <input type="text" id="accNumber" placeholder="اکاؤنٹ نمبر لکھیں">
+            <input type="number" id="wdAmount" placeholder="نکالنے کی رقم">
+            <button class="green-btn" onclick="withdraw()">ودھ ڈرا کریں</button>
+        </div>
+    </div>
+
+    <!-- Aviator Game Screen -->
+    <div class="card">
+        <h2>🚀 Aviator Crash Game</h2>
+        <div class="multiplier" id="multiplier">1.00x</div>
+        
+        <label>شرط کی رقم (Rs.):</label><br>
+        <input type="number" id="betAmount" value="100"><br>
+
+        <button id="betBtn" onclick="startGame()">شرط لگائیں (Bet)</button>
+        <button id="cashBtn" class="green-btn" onclick="cashOut()" disabled>پیسے نکالیں (Cashout)</button>
+    </div>
+
+    <!-- History -->
+    <div class="card">
+        <h4>📜 گیم ہسٹری (History)</h4>
+        <div class="history" id="history"></div>
+    </div>
+
+    <script>
+        let balance = 1000;
+        let multiplier = 1.00;
+        let interval;
+        let crashPoint;
+        let isPlaying = false;
+        let currentBet = 0;
+
+        function toggleSection(id) {
+            let el = document.getElementById(id);
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function deposit() {
+            let amt = parseInt(document.getElementById('depAmount').value);
+            if (!amt || amt <= 0) return alert("صحیح رقم درج کریں!");
+            alert("آپ کی ڈیپازٹ ریکویسٹ موصول ہو گئی ہے! ایڈمن کی منظوری کے بعد بیلنس اپڈیٹ ہو جائے گا۔");
+            document.getElementById('depAmount').value = '';
+            toggleSection('depositBox');
+        }
+
+        function withdraw() {
+            let amt = parseInt(document.getElementById('wdAmount').value);
+            let acc = document.getElementById('accNumber').value;
+            if (!amt || amt > balance || !acc) return alert("غلط معلومات یا ناکافی بیلنس!");
+            balance -= amt;
+            document.getElementById('balance').innerText = balance;
+            alert("Rs. " + amt + " کا ودھ ڈرا پروسیسنگ میں ہے۔");
+            document.getElementById('wdAmount').value = '';
+            toggleSection('withdrawBox');
+        }
+
+        function startGame() {
+            currentBet = parseInt(document.getElementById('betAmount').value);
+            if (!currentBet || currentBet > balance || currentBet < 10) {
+                alert("صحیح رقم کی شرط لگائیں (کم از کم Rs. 10)");
+                return;
+            }
+
+            balance -= currentBet;
+            document.getElementById('balance').innerText = balance;
+            
+            isPlaying = true;
+            multiplier = 1.00;
+            crashPoint = (Math.random() * 4 + 1.1).toFixed(2); // Crash between 1.1x and 5.1x
+
+            document.getElementById('betBtn').disabled = true;
+            document.getElementById('cashBtn').disabled = false;
+
+            interval = setInterval(() => {
+                multiplier += 0.04;
+                document.getElementById('multiplier').innerText = multiplier.toFixed(2) + 'x';
+
+                if (multiplier >= crashPoint) {
+                    clearInterval(interval);
+                    document.getElementById('multiplier').innerText = "CRASHED! 💥";
+                    addHistory("ہار گئے: Rs. " + currentBet, "red");
+                    resetGame();
+                }
+            }, 100);
+        }
+
+        function cashOut() {
+            if (!isPlaying) return;
+            clearInterval(interval);
+            let winAmount = Math.floor(currentBet * multiplier);
+            balance += winAmount;
+            document.getElementById('balance').innerText = balance;
+            addHistory("جیت گئے: Rs. " + winAmount + " (" + multiplier.toFixed(2) + "x)", "green");
+            alert("مبارک ہو! آپ جیت گئے: Rs. " + winAmount);
+            resetGame();
+        }
+
+        function resetGame() {
+            document.getElementById('betBtn').disabled = false;
+            document.getElementById('cashBtn').disabled = true;
+            isPlaying = false;
+        }
+
+        function addHistory(msg, color) {
+            let h = document.getElementById('history');
+            h.innerHTML = `<div style="color:${color}; margin-bottom:3px;">• ${msg}</div>` + h.innerHTML;
+        }
+    </script>
+</body>
+</html>
